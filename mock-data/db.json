@@ -1,0 +1,10 @@
+{
+    "tasks": [
+      { "id": 1, "title": "Comprar leite", "description": "Lembre-se de comprar leite sem lactose." },
+      { "id": 2, "title": "Pagar contas", "description": "Pagar contas de água e luz até sexta-feira." }
+    ],
+    "users": [
+      { "id": 1, "username": "admin", "password": "senha123" }
+    ]
+  }
+  
