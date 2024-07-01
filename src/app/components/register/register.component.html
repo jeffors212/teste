@@ -1,12 +1,16 @@
 <div>
   <h2>Registrar</h2>
-  <form (ngSubmit)="register()">
-    <label for="username">Usuário:</label>
-    <input type="text" id="username" [(ngModel)]="username" name="username" required>
+  <form [formGroup]="registerForm" (ngSubmit)="register()">
+    <mat-form-field appearance="fill">
+      <mat-label>Usuário</mat-label>
+      <input matInput formControlName="username" required>
+    </mat-form-field>
 
-    <label for="password">Senha:</label>
-    <input type="password" id="password" [(ngModel)]="password" name="password" required>
+    <mat-form-field appearance="fill">
+      <mat-label>Senha</mat-label>
+      <input matInput formControlName="password" type="password" required>
+    </mat-form-field>
 
-    <button type="submit">Register</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!registerForm.valid">Register</button>
   </form>
 </div>

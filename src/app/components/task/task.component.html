@@ -1,12 +1,17 @@
 <div>
   <h2>Add Task</h2>
-  <form (ngSubmit)="addTask()">
-    <label for="title">Title:</label>
-    <input type="text" id="title" [(ngModel)]="title" name="title" required>
+  <form [formGroup]="taskForm" (ngSubmit)="addTask()">
+    <mat-form-field appearance="fill">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" required>
+    </mat-form-field>
 
-    <label for="description">Description:</label>
-    <input type="text" id="description" [(ngModel)]="description" name="description" required>
+    <mat-form-field appearance="fill">
+      <mat-label>Description</mat-label>
+      <input matInput formControlName="description" required>
+    </mat-form-field>
 
-    <button type="submit">Add Task</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!taskForm.valid">Add Task</button>
   </form>
+  <div *ngIf="message" class="feedback">{{ message }}</div>
 </div>

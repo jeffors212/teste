@@ -1,5 +1,5 @@
-<nav>
-  <a routerLink="/tasks">Tasks</a>
-  <a routerLink="/task">Add Task</a>
-  <a (click)="logout()">Logout</a>
-</nav>
+<mat-toolbar color="primary">
+  <a mat-button routerLink="/tasks">Tasks</a>
+  <a mat-button routerLink="/task">Add Task</a>
+  <button mat-button (click)="logout()">Logout</button>
+</mat-toolbar>

@@ -1,26 +1,39 @@
 import { Component } from '@angular/core';
-import {FormsModule} from "@angular/forms";
-import {AuthService} from "../../services/auth.service";
-import {Router} from "@angular/router";
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '../../material.module'; 
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [
-    FormsModule
-  ],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrls: ['./register.component.scss'],
+  standalone: true,
+  imports: [ReactiveFormsModule, MaterialModule]
 })
 export class RegisterComponent {
-  username: string = '';
-  password: string = '';
+  registerForm: FormGroup;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router, 
+    private fb: FormBuilder
+  ) {
+    this.registerForm = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+  }
 
   register() {
-    this.authService.register(this.username, this.password).subscribe(() => {
-      this.router.navigate(['/login']);
-    });
+    if (this.registerForm.valid) {
+      this.authService.register(
+        this.registerForm.value.username, 
+        this.registerForm.value.password
+      ).subscribe(() => {
+        this.router.navigate(['/login']);
+      });
+    }
   }
 }

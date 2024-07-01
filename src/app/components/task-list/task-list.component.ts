@@ -1,60 +1,70 @@
-import { Component } from '@angular/core';
-import { TaskService } from "../../services/task.service";
-import { NgForOf } from "@angular/common";
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../store/app.state';
+import * as TaskActions from '../../store/task.actions';
+import { Task } from '../../models/task.model';
+import { MaterialModule } from '../../material.module'; // Ajuste o caminho conforme necessário
 
 @Component({
   selector: 'app-task-list',
-  standalone: true,
-  imports: [
-    NgForOf
-  ],
   templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.scss']
+  styleUrls: ['./task-list.component.scss'],
+  standalone: true,
+  imports: [ReactiveFormsModule, MaterialModule]
 })
-export class TaskListComponent {
-  tasks: any[] = [];
-  editingId: number | null = null;
-  editingTitle: string = '';
-  editingDescription: string = '';
+export class TaskListComponent implements OnInit {
+  tasks: Task[] = [];
+  editingForms: { [key: number]: FormGroup } = {}; 
 
-  constructor(private taskService: TaskService) {}
-
-  ngOnInit() {
-    this.loadTasks();
-  }
-
-  loadTasks() {
-    this.taskService.getTasks().subscribe(tasks => {
+  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+    this.store.select(state => state.tasks).subscribe(tasks => {
       this.tasks = tasks;
+      this.initForms();
     });
   }
 
-  enableEditing(task: any) {
-    this.editingId = task.id;
-    this.editingTitle = task.title;
-    this.editingDescription = task.description;
+  ngOnInit() {
+    this.store.dispatch(TaskActions.loadTasks());
   }
 
-  updateTask(id: number) {
-    if (this.editingId !== null) {
-      const updatedTask = { title: this.editingTitle, description: this.editingDescription };
-      this.taskService.updateTask(id, updatedTask).subscribe(() => {
-        const index = this.tasks.findIndex(task => task.id === id);
-        if (index !== -1) {
-          this.tasks[index] = { ...this.tasks[index], ...updatedTask };
-        }
-        this.editingId = null; // Reset editing mode
-      });
+  initForms() {
+    this.tasks.forEach(task => {
+      if (!this.editingForms[task.id]) {
+        this.editingForms[task.id] = this.fb.group({
+          title: [task.title, Validators.required],
+          description: [task.description, Validators.required]
+        });
+      }
+    });
+  }
+
+  enableEditing(task: Task) {
+    this.editingForms[task.id].setValue({
+      title: task.title,
+      description: task.description
+    });
+  }
+
+  updateTask(taskId: number) {
+    if (this.editingForms[taskId].valid) {
+      const formValue = this.editingForms[taskId].value;
+      this.store.dispatch(TaskActions.updateTask({
+        id: taskId,
+        title: formValue.title,
+        description: formValue.description
+      }));
+      this.cancelEditing(taskId);
     }
   }
 
   deleteTask(id: number) {
-    this.taskService.deleteTask(id).subscribe(() => {
-      this.tasks = this.tasks.filter(task => task.id !== id);
-    });
+    this.store.dispatch(TaskActions.deleteTask({ id }));
   }
 
-  cancelEditing() {
-    this.editingId = null;
+  cancelEditing(taskId: number) {
+    if (this.editingForms[taskId]) {
+      this.editingForms[taskId].reset();
+    }
   }
 }
